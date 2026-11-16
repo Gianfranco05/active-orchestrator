@@ -402,9 +402,9 @@ After the sub-agent returns: confirm `.atl/skill-registry.md` exists.
 
 **Why last**: `agent-instruction` builds the Navigation Map (Mapa de Navegación) referencing all KB files (`state.kb.files`) and reads `.atl/skill-registry.md` as its **single source of truth for available skills**. It maps those skills to the project's agent roles and *references* the registry for the compact rules — it does NOT copy the rules into `CLAUDE.md` (those live only in the registry, which is not versioned). All inputs exist only after Phases 1, 3 and 4 complete.
 
-**Why inline + interactive**: this phase **asks the user for the project's hard rules** (stack-aware — it proposes defaults from the detected stack and confirms), so it must run inline. It also generates a project `AGENTS.md`/`CLAUDE.md` that does **NOT repeat** the global `~/.claude/CLAUDE.md` the stack already installed — only project-specific instructions. A sub-agent could not ask the rules, so this phase is never delegated.
+**Why inline + interactive**: this phase **asks the user for the project's hard rules** (stack-aware — it proposes defaults from the detected stack and confirms), so it must run inline. It also generates a project `AGENTS.md`/`CLAUDE.md` that does **NOT repeat** the global instruction file resolved by the active client the stack already installed — only project-specific instructions. A sub-agent could not ask the rules, so this phase is never delegated.
 
-**Input consumed**: `state.kb.discovery` + `state.kb.files` (reads `knowledge-base/`) + `.atl/skill-registry.md` (skills source of truth) + the user's confirmed hard rules + the global `~/.claude/CLAUDE.md` (to avoid duplication).
+**Input consumed**: `state.kb.discovery` + `state.kb.files` (reads `knowledge-base/`) + `.atl/skill-registry.md` (skills source of truth) + the user's confirmed hard rules + the global instruction file resolved by the active client (to avoid duplication).
 **Output**: project `CLAUDE.md` / `AGENTS.md` + `state.agents`.
 
 **Dispatch** (inline — interactive, asks the user for the hard rules):
@@ -483,7 +483,7 @@ When `step == "done"` (all phases complete or skipped):
      (or equivalent; do NOT use `find`/`ls`)
    - List of files created, one-liner per file.
    - Any phases that were skipped and why.
-   - Suggested next command: `/opsx:propose <primer-change-de-CHANGES.md>` (if CHANGES.md was generated) or the next logical action.
+   - If CHANGES.md was generated, suggest the installed proposal skill for the first change. Use the active client’s invocation (for example `$openspec-propose` in Codex when installed). Otherwise suggest the next relevant foundation action.
 3. Reminder: "Podés re-ejecutar fases individuales: `/active-orchestrator:kb` para agregar dominios, `/active-orchestrator:rules` para regenerar CLAUDE.md, `/active-orchestrator:find-skill` para agregar skills, `/active-orchestrator:registry` para reconstruir el skill-registry después de instalar/quitar skills."
 
 ---
