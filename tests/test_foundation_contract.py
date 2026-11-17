@@ -1,0 +1,88 @@
+"""Smoke tests for the published foundation skill instructions."""
+
+from pathlib import Path
+import json
+import re
+import unittest
+
+
+SKILL = (Path(__file__).resolve().parents[1] / "SKILL.md").read_text(encoding="utf-8")
+
+
+def section(heading):
+    match = re.search(rf"(?ms)^## {heading}\n(.*?)(?=^## |\Z)", SKILL)
+    return match.group(1) if match else ""
+
+
+class FoundationContract(unittest.TestCase):
+    def test_direct_route_has_no_foundation_side_effect(self):
+        route = section("Route selection")
+        self.assertIn("one day", route)
+        self.assertIn("no foundation writes", route)
+        self.assertRegex(route, "(?i)reassess if scope or coordination grows")
+
+    def test_checklist_keeps_three_required_outputs(self):
+        table = section("Phase catalog")
+        required = re.findall(r"^\| `([a-z-]+)` \| Required \|", table, re.MULTILINE)
+        self.assertEqual(required, ["kb", "roadmap", "agents"])
+        checklist = section("Checklist and approval")
+        self.assertIn("numbered text list", checklist)
+        self.assertIn("before writing", checklist)
+
+    def test_resume_preserves_sections_on_failure_or_migration(self):
+        resume = section("State and resume")
+        for requirement in ("versions 2–5", "unknown sections", "failed", "reused"):
+            self.assertIn(requirement, resume)
+        self.assertNotIn("delete .active-orchestrator-state.json", SKILL)
+
+    def test_never_runs_sdd_initialization(self):
+        self.assertNotIn("openspec init", SKILL.lower(), "The foundation must not initialize SDD")
+
+    def test_confirmed_plan_example_is_dependency_ordered(self):
+        resume = section("State and resume")
+        example = re.search(r"```json\n(.*?)\n```", resume, re.DOTALL)
+        state = json.loads(example.group(1))
+        self.assertEqual(state["version"], 5)
+        self.assertEqual(state["foundation"]["version"], 1)
+        foundation = state["foundation"]
+        self.assertEqual(state["step"], foundation["order"][0])
+        earlier = set()
+        for phase in foundation["order"]:
+            entry = foundation["phases"][phase]
+            self.assertEqual(entry["status"], "pending")
+            self.assertTrue(entry["outputs"])
+            self.assertLessEqual(set(entry["requires"]), earlier)
+            earlier.add(phase)
+
+    def test_checklist_can_skip_visual_and_build_rules_without_registry(self):
+        phase_catalog = section("Phase catalog")
+        visual = next(line for line in phase_catalog.splitlines() if "`visual-design`" in line)
+        self.assertIn("| Optional |", visual)
+        self.assertIn("off, deferred, reuse", visual)
+        rules = next(line for line in phase_catalog.splitlines() if "`agents`" in line)
+        self.assertIn("registry when selected or reused", rules)
+
+    def test_rules_resolve_global_instructions_for_the_active_client(self):
+        dispatch = section("Dispatch and entrypoints")
+        self.assertIn("global instruction file resolved by the active client", dispatch)
+        self.assertNotIn("~/.claude/CLAUDE.md", dispatch)
+
+    def test_skill_search_requires_explicit_install_choices(self):
+        dispatch = section("Dispatch and entrypoints")
+        search = dispatch.split("### Skill search", 1)[1]
+        recommend_only = search.index("recommend-only")
+        consent = search.index("explicit approval of the exact selections")
+        install = search.index("npx skills add")
+        self.assertLess(recommend_only, consent)
+        self.assertLess(consent, install)
+        self.assertIn("`state.skills.installed`", search)
+        self.assertIn("only verified installations", search)
+
+    def test_phase_reuse_records_owner_evidence_without_rewriting_outputs(self):
+        resume = section("State and resume")
+        self.assertIn("register the verified metadata", resume)
+        self.assertIn("without rewriting the files", resume)
+
+
+if __name__ == "__main__":
+    unittest.main()
