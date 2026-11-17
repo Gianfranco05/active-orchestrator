@@ -1,48 +1,43 @@
-# active-orchestrator
+# Active Orchestrator
 
-Thin orchestrator skill for the SDD/OpenSpec project foundation flow.
+Active Orchestrator helps choose between direct work and project foundation. It
+recommends a route based on expected duration, continuity and coordination. The
+user can choose either route. Direct work proceeds without creating foundation
+files.
 
-## What it does
+## Foundation
 
-`active-orchestrator` is a **thin** orchestrator. It does not generate any artifact itself — it dispatches each foundation phase to its dedicated sub-skill in order:
+The orchestrator previews a checklist before any write. A foundation includes
+a knowledge base, a local roadmap and agent instructions. Each can be reused
+when the project already has a compatible artifact. Product discovery, visual
+design, skill search and the skill registry are optional. Each selection shows
+its variant, dependencies and outputs. Use native multi-select where available
+or reply to the numbered text list.
 
-1. `openspec init` — scaffold the OpenSpec workspace
-2. *(optional)* `discovery-research` — investigate the problem, users and competitors **before** documenting — only runs if you say yes to the Discovery gate right after `openspec init`
-3. `kb-creator` — build `knowledge-base/` (discovery + canonical docs)
-4. `design-system` — record the project visual policy; if chosen, create and approve a reusable visual system
-5. `roadmap-generator` — build `CHANGES.md` from the KB
-6. `find-skill` — recommend agent skills for the detected stack
-7. `skill-registry` — index installed skills
-8. `agent-instruction` — generate `CLAUDE.md` / `AGENTS.md`
+Approve the ordered plan to run it. Phase-specific approvals still apply when
+needed, for example when installing global skills or approving visual assets.
+The orchestrator saves the approved plan in `.active-orchestrator-state.json`
+and can resume after an interruption. Older foundation files remain compatible.
 
-**Checkpoints between phases.** The full flow never runs phases back-to-back: it stops at every phase boundary so you can review what was produced and choose **continue / adjust / stop**. Where a phase depends on your judgment (the roadmap), it first asks if there's anything to take into account. And `find-skill` only *recommends* — nothing is installed into your global skills until you pick it at the install gate.
-
-State is shared across phases via `.active-orchestrator-state.json` (schema v5). The visual choice is `system-and-mockups`, `system-only`, `off`, or `deferred`. An explicit `off` persists, so later changes do not request mockups. Older completed foundations keep their progress and can add the policy via `/active-orchestrator:design` or at their first visual change.
-
-## Triggers
-
-| Command | Effect |
+| Command | Purpose |
 |---|---|
-| `/active-orchestrator:init` | Full foundation flow |
-| `/active-orchestrator:discovery` | Only `discovery-research` phase (standalone, skips the gate) |
-| `/active-orchestrator:kb` | Only `kb-creator` phase |
-| `/active-orchestrator:design` | Set or revise the visual policy without replaying completed foundation phases |
-| `/active-orchestrator:rules` | Only `agent-instruction` phase |
-| `/active-orchestrator:openspec` | Only `openspec init` |
-| `/active-orchestrator:find-skill` | Only `find-skill` phase |
-| `/active-orchestrator:devops` | Optional devops scaffolding (full mode) |
+| `/active-orchestrator:init` | Choose a route or resume an approved plan |
+| `/active-orchestrator:discovery` | Run product discovery |
+| `/active-orchestrator:kb` | Create, import or reuse a KB |
+| `/active-orchestrator:design` | Set or revise the visual policy |
+| `/active-orchestrator:rules` | Generate, update or reuse agent instructions |
+| `/active-orchestrator:find-skill` | Find project skills |
+| `/active-orchestrator:registry` | Index available skills |
+| `/active-orchestrator:devops` | Run optional DevOps scaffolding when installed |
+
+The skill delegates phases to available skills on Claude, Codex, OpenCode and
+Antigravity. See [SKILL.md](SKILL.md) for the phase and state contract.
 
 ## Install
 
 ```bash
 npx skills add https://github.com/Group-Active-IA/active-orchestrator
 ```
-
-## Architecture
-
-This skill is part of the **Active Stack** foundation. `design-system` is bundled in Active Stack Full and selectable in Custom. The other sub-skills are installed separately. `active-orchestrator` dispatches the available skills and falls back gracefully if one is missing.
-
-For the full architecture and frozen state contract, see [SKILL.md](SKILL.md).
 
 ## License
 
