@@ -15,6 +15,16 @@ def section(heading):
 
 
 class FoundationContract(unittest.TestCase):
+    def test_variant_only_reply_is_not_an_approval(self):
+        checklist = section("Checklist and approval")
+        self.assertIn("only selects phases or variants changes the plan but does not", checklist)
+        self.assertIn("wait for explicit approval", checklist)
+        self.assertIn("approval date only", checklist)
+
+    def test_claude_code_uses_space_separated_entrypoints(self):
+        self.assertIn("/active-orchestrator init", SKILL)
+        self.assertIn("Claude Code has no colon entrypoints", SKILL)
+
     def test_direct_route_has_no_foundation_side_effect(self):
         route = section("Route selection")
         self.assertIn("one day", route)

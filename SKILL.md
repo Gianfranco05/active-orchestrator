@@ -3,7 +3,8 @@ name: active-orchestrator
 description: >
   Recommend a direct route or coordinate project foundation. Preview a selectable
   plan, reuse existing artifacts, delegate the chosen phases and resume safely.
-  Trigger: /active-orchestrator:init or requests to start or resume foundation.
+  Trigger: /active-orchestrator:init (in Claude Code: /active-orchestrator init) or
+  requests to start or resume foundation.
 license: MIT
 metadata:
   author: juancruzrobledo
@@ -37,9 +38,15 @@ installations or sub-skill dispatches.
    as blockers and explain any prerequisites brought in by an option. Resolve all
    variants before approval. Show explicit skipped and deferred options.
 4. Summarize the ordered plan, reuse choices, writes, installs and external actions.
+   List every file each phase writes, including the policy record that
+   `visual-design` keeps in `design-system/README.md` even for `off`.
    Get explicit approval before writing any state or artifact, running initialization,
    installing anything or connecting external services. Cancel or leave an
    unconfirmed plan without side effects. A new or changed plan requires approval.
+   A reply that only selects phases or variants changes the plan but does not
+   approve it: show the resulting summary and wait for explicit approval, even
+   when the selection matches the recommendation. Record the approval date only
+   after that explicit approval.
 5. Run the approved plan. Pause for phase-specific user decisions including discovery
    answers, approval of a visual design, explicit global installation choices,
    permission to modify existing instructions and any unapproved external writes.
@@ -87,7 +94,10 @@ when present, so the phase can keep project rules focused on this repository.
 resume the approved plan. Existing standalone entrypoints `:discovery`, `:kb`,
 `:design`, `:rules`, `:find-skill`, `:registry`, `:task-management` and
 `:devops` select only
-their named phase or extension. Check its prerequisites and preview its effects
+their named phase or extension. Claude Code has no colon entrypoints: invoke the
+skill as `/active-orchestrator` followed by the action, such as
+`/active-orchestrator init` or `/active-orchestrator kb`, and use that form when
+suggesting a command there. Check its prerequisites and preview its effects
 before confirmation. Preserve a completed foundation when running a standalone
 phase. If a phase or extension is unavailable, report it and offer read-only ways
 to inspect or satisfy its prerequisites.
