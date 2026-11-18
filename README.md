@@ -30,6 +30,9 @@ and can resume after an interruption. Older foundation files remain compatible.
 | `/active-orchestrator:registry` | Index available skills |
 | `/active-orchestrator:devops` | Run optional DevOps scaffolding when installed |
 
+In Claude Code, write these commands with a space instead of the colon, for
+example `/active-orchestrator init` or `/active-orchestrator kb`.
+
 The skill delegates phases to available skills on Claude, Codex, OpenCode and
 Antigravity. See [SKILL.md](SKILL.md) for the phase and state contract.
 
