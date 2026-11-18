@@ -38,6 +38,8 @@ installations or sub-skill dispatches.
    as blockers and explain any prerequisites brought in by an option. Resolve all
    variants before approval. Show explicit skipped and deferred options.
 4. Summarize the ordered plan, reuse choices, writes, installs and external actions.
+   List every file each phase writes, including the policy record that
+   `visual-design` keeps in `design-system/README.md` even for `off`.
    Get explicit approval before writing any state or artifact, running initialization,
    installing anything or connecting external services. Cancel or leave an
    unconfirmed plan without side effects. A new or changed plan requires approval.
