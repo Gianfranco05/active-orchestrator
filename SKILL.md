@@ -180,8 +180,10 @@ approval rules as the other phases. Resolve paths relative to the project root.
    are no unknown fields. No field or file accepts credentials. Show errors as they are
    and never repair team data on your own.
 7. Write the files. Back up existing files before changes and write atomically. Write
-   `.active-stack/team.json`, then the pull request template with the handoff fields
-   and `.github/CODEOWNERS`. Never overwrite an existing `.github/CODEOWNERS` or
+   `.active-stack/team.json`, then `.github/pull_request_template.md` and
+   `.github/CODEOWNERS`. Copy the template as it is from
+   `assets/pull_request_template.md` (the six handoff facts) and follow the format of
+   `assets/CODEOWNERS.example`; never invent other content for them. Never overwrite an existing `.github/CODEOWNERS` or
    `.github/pull_request_template.md`: show the diff and propose the merge.
    Build `CODEOWNERS` from the `Zona` of each ficha in `CHANGES.md` plus the primary
    and backup reviewer. Members without `github` are left out of the file, with a note.
@@ -200,9 +202,19 @@ approval rules as the other phases. Resolve paths relative to the project root.
     tools read that record as the signal of a team project. Propose a single commit
     with them. Never commit or push on your own.
 
-Foundation does not choose the person's identity. Explain that `active-delivery`
-suggests it from the GitHub account on each person's first session and stores it in
-`.active-stack/me.local.json`, never versioned.
+Foundation does not choose the person's identity on its own. After the files are
+verified, offer the person doing the foundation to pick their own seat: suggest the
+member that matches the account in `github` (read with `gh api user`), or let them
+choose from the list, or leave them in consult mode (read-only) if nobody matches.
+Write `.active-stack/me.local.json` only after the person confirms; it is local and
+never versioned. The person can skip this step. Everyone else chooses theirs on their
+first session through `active-delivery`.
+
+For a fresh clone where `team.json` already exists in `.active-stack/`, use the `reuse`
+variant: validate it, never rewrite an existing `team.json`, and offer to create the
+missing local files (`me.local.json`, and `team.local.json` when names are not
+versioned) with the same approval rules. For a partial foundation, inspect the files
+first and continue only with what is missing, following the resume rules.
 
 Foundation does not hide the phase in OpenCode and Antigravity: it records the team, the
 rules and the convention there, and says that the guided delivery flow does not exist

@@ -5,7 +5,8 @@ import re
 import unittest
 
 
-SKILL = (Path(__file__).resolve().parents[1] / "SKILL.md").read_text(encoding="utf-8")
+ROOT = Path(__file__).resolve().parents[1]
+SKILL = (ROOT / "SKILL.md").read_text(encoding="utf-8")
 
 
 def section(heading):
@@ -194,6 +195,55 @@ class TeamClientCompatibilityTests(unittest.TestCase):
         flow = team_mode()
         self.assertRegex(flow, r"(?i)no .{0,30}Claude.{0,30}Codex.{0,30}(?:tool|capabilit)")
         self.assertRegex(flow, r"(?i)tracking stays `local`")
+
+
+class TeamTemplatesTests(unittest.TestCase):
+    def test_pull_request_template_asset_carries_the_six_handoff_facts(self):
+        template = (ROOT / "assets/pull_request_template.md").read_text(encoding="utf-8")
+        for fact in ("Result", "PR and SHA", "How to verify", "What is left", "Who continues", "What blocks it"):
+            self.assertRegex(template, rf"(?im)^#+ .*{fact}")
+        self.assertRegex(template, r"(?i)ficha")
+        self.assertNotRegex(template, r"(?i)token|secret|password|bearer|ghp_")
+
+    def test_codeowners_example_shows_the_format_without_real_people(self):
+        example = (ROOT / "assets/CODEOWNERS.example").read_text(encoding="utf-8")
+        self.assertRegex(example, r"(?m)^#.*Zona")
+        self.assertRegex(example, r"(?m)^\S+/\s+@\S+\s+@\S+")
+        self.assertRegex(example, r"@(?:github-handle|primary|backup)")
+
+    def test_skill_points_to_both_assets_and_never_invents_their_content(self):
+        flow = team_mode()
+        self.assertIn("assets/pull_request_template.md", flow)
+        self.assertIn("assets/CODEOWNERS.example", flow)
+        self.assertRegex(flow, r"(?i)copy the template as it is")
+
+
+class TeamIdentityAtFoundationTests(unittest.TestCase):
+    def test_founder_can_choose_a_seat_with_account_match_manual_choice_or_consult(self):
+        flow = team_mode()
+        self.assertIn("gh api user", flow)
+        self.assertRegex(flow, r"(?i)suggest .{0,60}matches? .{0,40}`github`")
+        self.assertRegex(flow, r"(?i)manual choice|choose from the list")
+        self.assertRegex(flow, r"(?i)consult mode")
+        self.assertRegex(flow, r"(?i)read-only")
+
+    def test_identity_is_confirmed_and_only_written_locally(self):
+        flow = team_mode()
+        self.assertRegex(flow, r"(?i)write `\.active-stack/me\.local\.json` only after the person confirms")
+        self.assertRegex(flow, r"(?i)never versioned")
+        self.assertRegex(flow, r"(?i)the person can skip")
+
+    def test_fresh_clone_with_existing_team_json_reuses_it_and_fills_local_gaps(self):
+        flow = team_mode()
+        self.assertRegex(flow, r"(?i)fresh clone")
+        self.assertRegex(flow, r"(?i)`team\.json` already exists")
+        self.assertRegex(flow, r"(?i)never rewrite (?:an existing )?`team\.json`")
+        self.assertRegex(flow, r"(?i)missing local files")
+
+    def test_partial_foundation_resumes_from_evidence(self):
+        flow = team_mode()
+        self.assertRegex(flow, r"(?i)partial foundation")
+        self.assertRegex(flow, r"(?i)inspect the files first")
 
 
 if __name__ == "__main__":
